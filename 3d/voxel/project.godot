@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Voxel Game"
+config/name="Voxel Game Demo"
 config/description="This demo is a minimal voxel game, inspired by others such as Minecraft.
 
 Sticking to GDScript and the built-in Godot tools, as this demo does, is
@@ -18,16 +18,12 @@ quite limiting. If you are making your own voxel game, you should probably
 use Zylann's voxel module instead: https://github.com/Zylann/godot_voxel"
 config/tags=PackedStringArray("3d", "demo", "official")
 run/main_scene="res://menu/main/main_menu.tscn"
-config/features=PackedStringArray("4.3")
+config/features=PackedStringArray("4.4")
 config/icon="res://icon.webp"
 
 [autoload]
 
 Settings="*res://settings.gd"
-
-[debug]
-
-gdscript/warnings/untyped_declaration=1
 
 [display]
 
@@ -35,6 +31,10 @@ window/size/viewport_width=1600
 window/size/viewport_height=900
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="Voxel Game Demo"
 
 [input]
 
@@ -153,6 +153,5 @@ common/physics_ticks_per_second=120
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 anti_aliasing/quality/msaa_3d=2
 anti_aliasing/quality/use_debanding=true

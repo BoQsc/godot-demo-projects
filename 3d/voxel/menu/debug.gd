@@ -1,10 +1,11 @@
 extends Label
 # Displays some useful debug information in a Label.
 
-@onready var player := $"../Player"
-@onready var voxel_world := $"../VoxelWorld"
+@onready var player = $"../Player"
+@onready var voxel_world = $"../VoxelWorld"
 
-func _process(_delta: float) -> void:
+
+func _process(_delta):
 	if Input.is_action_just_pressed(&"debug"):
 		visible = not visible
 
@@ -16,17 +17,14 @@ func _process(_delta: float) -> void:
 
 
 # Avoids the problem of showing more digits than needed or available.
-func _vector_to_string_appropriate_digits(vector: Vector3) -> String:
-	var factors: Array[int] = [1000, 1000, 1000]
-	for i in 3:
+func _vector_to_string_appropriate_digits(vector):
+	var factors = [1000, 1000, 1000]
+	for i in range(3):
 		if abs(vector[i]) > 4096:
-			@warning_ignore("integer_division")
 			factors[i] = factors[i] / 10
 			if abs(vector[i]) > 65536:
-				@warning_ignore("integer_division")
 				factors[i] = factors[i] / 10
 				if abs(vector[i]) > 524288:
-					@warning_ignore("integer_division")
 					factors[i] = factors[i] / 10
 
 	return "(" + \
@@ -36,7 +34,7 @@ func _vector_to_string_appropriate_digits(vector: Vector3) -> String:
 
 
 # Expects a rotation where 0 is North, on the range -PI to PI.
-func _cardinal_string_from_radians(angle: float) -> String:
+func _cardinal_string_from_radians(angle):
 	if angle > TAU * 3 / 8:
 		return "South"
 	if angle < -TAU * 3 / 8:

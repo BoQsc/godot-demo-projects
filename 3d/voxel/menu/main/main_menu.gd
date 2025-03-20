@@ -1,35 +1,41 @@
 extends Control
 
-@onready var title: VBoxContainer = $TitleScreen
-@onready var start: HBoxContainer = $StartGame
-@onready var options: Control = $Options
+@onready var tree = get_tree()
+
+@onready var title = $TitleScreen
+@onready var start = $StartGame
+@onready var options = $Options
 
 
-func _on_Start_pressed() -> void:
+func _on_Start_pressed():
 	start.visible = true
 	title.visible = false
 
 
-func _on_Options_pressed() -> void:
+func _on_Options_pressed():
 	options.prev_menu = title
 	options.visible = true
 	title.visible = false
 
 
-func _on_Exit_pressed() -> void:
-	get_tree().quit()
+func _on_Exit_pressed():
+	tree.quit()
 
 
-func _on_RandomBlocks_pressed() -> void:
+func _on_RandomBlocks_pressed():
 	Settings.world_type = 0
-	get_tree().change_scene_to_packed(preload("res://world/world.tscn"))
+	tree.change_scene_to_packed(preload("res://world/world.tscn"))
 
 
-func _on_FlatGrass_pressed() -> void:
+func _on_FlatGrass_pressed():
 	Settings.world_type = 1
-	get_tree().change_scene_to_packed(preload("res://world/world.tscn"))
+	tree.change_scene_to_packed(preload("res://world/world.tscn"))
+
+func _on_mountainous_pressed():
+	Settings.world_type = 2
+	tree.change_scene_to_packed(preload("res://world/world.tscn"))
 
 
-func _on_BackToTitle_pressed() -> void:
+func _on_BackToTitle_pressed():
 	title.visible = true
 	start.visible = false
