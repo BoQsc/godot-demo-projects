@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bl8rdglpqat5a"]
+
+[ext_resource type="PackedScene" uid="uid://ccbcnk6nisua8" path="res://characters_quaternius/AnimationLibrary_Godot_Standard.glb" id="1_gtysi"]
+
+[node name="QunaterniusRagdoll" type="Node3D" unique_id=1410249548]
+
+[node name="AnimationLibrary_Godot_Standard" parent="." unique_id=1659169792 instance=ExtResource("1_gtysi")]
+
+[editable path="AnimationLibrary_Godot_Standard"]
