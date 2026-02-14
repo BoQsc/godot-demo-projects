@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Ragdoll Physics"
 config/description="This demo includes an example of ragdoll simulation for characters."
-run/main_scene="uid://dpkhlaxg5302f"
+run/main_scene="uid://boevo6bj5yksi"
 config/features=PackedStringArray("4.6")
 
 [debug]

@@ -26,7 +26,7 @@ func _unhandled_input(input_event: InputEvent) -> void:
 		var result := camera.get_world_3d().direct_space_state.intersect_ray(query)
 
 		if not result.is_empty():
-			var ragdoll := preload("res://characters/mannequiny_ragdoll.tscn").instantiate()
+			var ragdoll := preload("res://character_zombie/male_zombie.tscn").instantiate()
 			ragdoll.position = result["position"] + Vector3(0.0, 0.5, 0.0)
 			# Make newly spawned ragdolls face the camera.
 			ragdoll.rotation.y = camera_pivot.rotation.y
