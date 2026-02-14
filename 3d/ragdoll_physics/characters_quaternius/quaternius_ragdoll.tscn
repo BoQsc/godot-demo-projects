@@ -22,6 +22,10 @@ height = 0.30371094
 radius = 0.05810547
 height = 0.11621094
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bx408"]
+radius = 0.088378906
+height = 0.23217773
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8r0fk"]
 radius = 0.049316406
 height = 0.22129227
@@ -245,8 +249,8 @@ joint_constraints/damping = 1.0
 joint_constraints/impulse_clamp = 0.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D/Physical Bone Head" unique_id=1847012099]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_6wppg")
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, -8.940697e-08, -0.01892078)
+shape = SubResource("CapsuleShape3D_bx408")
 
 [node name="Physical Bone LeftShoulder" type="PhysicalBone3D" parent="AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D" unique_id=981351277]
 transform = Transform3D(0, 0.6229982, -0.78222334, -0.99227786, 0.097023234, 0.0772737, 0.1240352, 0.7761829, 0.61818725, 0.10534998, 1.4493501, 0.0029998422)
@@ -627,10 +631,10 @@ transform = Transform3D(0.99999845, 1.4901161e-07, 2.9802322e-07, 2.9802322e-07,
 shape = SubResource("CapsuleShape3D_uwh6f")
 
 [node name="Physical Bone RightThumbProximal" type="PhysicalBone3D" parent="AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D" unique_id=1166380895]
-transform = Transform3D(-0.556631, -0.24162497, 0.7948455, 0.26549527, 0.85485655, 0.44579428, -0.78719395, 0.45917064, -0.41168934, -0.8198998, 1.3878503, -0.00400013)
+transform = Transform3D(-0.556631, -0.24162497, 0.79484546, 0.26549527, 0.85485655, 0.44579428, -0.78719395, 0.45917064, -0.41168937, -0.8198998, 1.3878503, -0.00400013)
 joint_type = 1
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.527617e-06, 1.1404802e-05, 0.024538858)
-body_offset = Transform3D(-0.26549527, -0.85485655, -0.4457943, 2.9802322e-08, 0.46266958, -0.8872167, 0.96469855, -0.23555183, -0.12283653, 0.010949969, 0.021766007, 0.0030135512)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5285484e-06, 1.1406606e-05, 0.024538856)
+body_offset = Transform3D(-0.26549527, -0.85485655, -0.44579428, 2.9802322e-08, 0.46266958, -0.88721675, 0.96469855, -0.23555183, -0.12283656, 0.010949969, 0.021766007, 0.0030135512)
 bone_name = "RightThumbProximal"
 joint_constraints/bias = 0.3
 joint_constraints/damping = 1.0
