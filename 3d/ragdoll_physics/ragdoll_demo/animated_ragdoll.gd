@@ -12,10 +12,10 @@ extends Node3D
 @export_group("Reaction Tuning")
 @export var hit_reaction_force_mult: float = 0.5 
 @export var reflex_duration: float = 0.2
-@export var recovery_duration: float = 1.0 # Longer for smooth blend
+@export var recovery_duration: float = 0.5 # Wait time before blending starts
 @export var blend_time: float = 0.5 # Duration of blend back to anim
 
-enum State { IDLE, REFLEX, RECOVERY, DEAD }
+enum State { IDLE, REFLEX, RECOVERY, BLENDING, DEAD }
 var current_state: State = State.IDLE
 var current_health: int
 var state_timer: float = 0.0
@@ -27,6 +27,12 @@ var skeleton: Skeleton3D
 # Node references
 var bones_dict: Dictionary = {}
 var active_bones_mask: Array[StringName] = [] # Bones currently simulating
+
+# Blending State
+var blend_amount: float = 0.0
+var snapshot_local_poses: Dictionary = {} # bone_idx -> Transform3D (Local to Parent)
+var sorted_bone_indices: Array[int] = [] 
+
 
 func _ready() -> void:
 	current_health = max_health
@@ -52,33 +58,97 @@ func _physics_process(delta: float) -> void:
 				
 		State.RECOVERY:
 			state_timer -= delta
-			
-			# In recovery, we want to gently guide bones back.
-			# Godot's PhysicalBoneSimulator doesn't support easy blending.
-			# We'll simulate a blend by just letting physics settle and then snapping?
-			# Or better: Stop simulation for bones one by one?
-			# For now, let's just wait longer.
-			
 			if state_timer <= 0:
-				enter_idle_state()
+				start_blending_back()
+				
+		State.BLENDING:
+			# Reduce override amount over time
+			blend_amount -= delta / blend_time
+			if blend_amount <= 0:
+				blend_amount = 0
+				current_state = State.IDLE
+				clear_snapshot_overrides()
+			else:
+				apply_snapshot_overrides(blend_amount)
 
 
 func enter_recovery_state() -> void:
 	current_state = State.RECOVERY
 	state_timer = recovery_duration
+
+
+func start_blending_back() -> void:
+	current_state = State.BLENDING
+	blend_amount = 1.0
 	
-	# To make it "roll back", we could re-enable animation on some bones?
-	# But PhysicalBoneSimulator is all or nothing per bone.
-	# We'll rely on the "Upright" torque we had, or just let it settle.
-
-
-func enter_idle_state() -> void:
-	current_state = State.IDLE
+	# Snapshot current physics LOCAL poses
+	snapshot_local_poses.clear()
+	sorted_bone_indices.clear()
+	
+	for bone_name in active_bones_mask:
+		if skeleton:
+			var bone_idx = skeleton.find_bone(bone_name)
+			if bone_idx != -1:
+				# Use the Skeleton's current local pose (driven by physics)
+				# This captures the ragdoll shape relative to parents
+				snapshot_local_poses[bone_idx] = skeleton.get_bone_pose(bone_idx)
+				sorted_bone_indices.append(bone_idx)
+	
+	# Sort indices so we process parents before children (Crucial for chain reconstruction)
+	sorted_bone_indices.sort()
+	
+	# Stop active physics (Snaps bones to animation pose internally)
 	physical_bone_simulator.physical_bones_stop_simulation()
 	active_bones_mask.clear()
 	
+	# Ensure animation is playing
 	if animation_player and not animation_player.is_playing():
 		start_animation()
+		
+	# Apply initial override (100% ragdoll pose)
+	apply_snapshot_overrides(1.0)
+
+
+func apply_snapshot_overrides(amount: float) -> void:
+	if not skeleton: return
+	
+	# Cache computed model poses in this frame to use for children
+	# Models Space (Relative to Skeleton)
+	var current_model_poses: Dictionary = {} 
+	
+	# Iterate in topological order (parents first)
+	for bone_idx in sorted_bone_indices:
+		var local_pose = snapshot_local_poses[bone_idx]
+		var parent_idx = skeleton.get_bone_parent(bone_idx)
+		
+		var parent_model_pose = Transform3D.IDENTITY
+		
+		if parent_idx != -1:
+			# If parent was also overridden in this loop, use that
+			if current_model_poses.has(parent_idx):
+				parent_model_pose = current_model_poses[parent_idx]
+			else:
+				# Otherwise use parent's current animation pose (Model Space)
+				# get_bone_global_pose returns pose relative to Skeleton
+				parent_model_pose = skeleton.get_bone_global_pose(parent_idx)
+		
+		# Calculate Model Pose: ParentModel * Local
+		var target_model_pose = parent_model_pose * local_pose
+		
+		# Store for children
+		current_model_poses[bone_idx] = target_model_pose
+		
+		# Apply override relative to skeleton
+		skeleton.set_bone_global_pose_override(bone_idx, target_model_pose, amount, true)
+
+
+func clear_snapshot_overrides() -> void:
+	if not skeleton: return
+	skeleton.clear_bones_global_pose_override()
+
+
+func enter_idle_state() -> void:
+	start_blending_back()
 
 
 func start_animation() -> void:
@@ -108,14 +178,14 @@ func activate_ragdoll(hit_node: Node, hit_position: Vector3, impulse: Vector3) -
 
 
 func start_reflex_reaction(hit_node: Node, hit_position: Vector3, impulse: Vector3) -> void:
+	# If already blending, cancel blend/overrides and re-react
+	if current_state == State.BLENDING:
+		clear_snapshot_overrides()
+	
 	current_state = State.REFLEX
 	state_timer = reflex_duration
 	
-	# LOCALIZED SIMULATION
-	# Identify the bone chain to simulate.
-	# If we hit "LeftLowerLeg", we want to simulate "LeftLowerLeg", "LeftFoot" etc.
-	# But NOT "Spine" or "Head".
-	
+	# LOCALIZED SIMULATION logic
 	var target_bone_name = ""
 	if hit_node is PhysicalBone3D:
 		target_bone_name = hit_node.bone_name
@@ -123,19 +193,9 @@ func start_reflex_reaction(hit_node: Node, hit_position: Vector3, impulse: Vecto
 	active_bones_mask.clear()
 	
 	if target_bone_name:
-		# Add specific hit bone
 		active_bones_mask.append(target_bone_name)
-		
-		# Simplistic: Add commonly associated bones or children?
-		# For now, just simulate the hit bone and maybe its parent/child?
-		# Actually, simulating Just the hit bone might detach it visually if parent is animated.
-		# Godot handles this by blending? No.
-		
-		# Strategy: Simulate the SUBTREE starting from the hit bone?
 		add_bone_subtree(target_bone_name)
-		
 	else:
-		# Fallback: Simulate everything except hips
 		for b in bones_dict.keys():
 			if b != "Hips":
 				active_bones_mask.append(b)
