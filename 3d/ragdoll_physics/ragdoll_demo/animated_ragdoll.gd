@@ -470,14 +470,14 @@ func apply_ragdoll_impulse(hit_node: Node, hit_position: Vector3, impulse: Vecto
 	if target_bone:
 		# If DEAD, distribute impulse to ALL bones to prevent the "Stretching" artifact
 		if current_state == State.DEAD:
-			print("Applying DEATH impulse to ALL bones. Target: ", target_bone.bone_name)
-			# Apply a uniform velocity boost to EVERY bone in the character
+			print("Applying DEATH impulse. Base: 0.1, Snap: 0.5. Target: ", target_bone.bone_name)
+			# Apply a minimal 'Base Velocity' to EVERY bone in the character
 			for child in physical_bone_simulator.get_children():
 				if child is PhysicalBone3D:
-					child.apply_central_impulse(impulse * 0.3)
+					child.apply_central_impulse(impulse * 0.1)
 			
-			# Apply "Impact Snap" to the actual hit bone (Head, etc.)
-			target_bone.apply_impulse(impulse * 0.1, hit_position - target_bone.global_position)
+			# Apply a much stronger 'Impact Snap' to the actual hit bone
+			target_bone.apply_impulse(impulse * 0.5, hit_position - target_bone.global_position)
 		else:
 			# Normal hit - apply full force to target bone
 			target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
