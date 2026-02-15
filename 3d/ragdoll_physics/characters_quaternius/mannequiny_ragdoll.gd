@@ -13,13 +13,13 @@ var has_applied_initial_velocity: bool = false
 # of each limb.
 var previous_pelvis_speed: float = 0.0
 
-@onready var pelvis: PhysicalBone3D = $"AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D/Physical Bone Hips"
+@onready var pelvis: PhysicalBone3D = $"Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D/Physical Bone Hips"
 
 
 func _ready() -> void:
-	$AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D.physical_bones_start_simulation()
+	$Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.physical_bones_start_simulation()
 	if not initial_velocity.is_zero_approx():
-		for physical_bone in $AnimationLibrary_Godot_Standard/Rig/GeneralSkeleton/PhysicalBoneSimulator3D.get_children():
+		for physical_bone in $Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.get_children():
 			# Give the ragdoll an initial motion by applying velocity on all its bones upon being spawned.
 			physical_bone.apply_central_impulse(initial_velocity)
 
