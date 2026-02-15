@@ -468,19 +468,27 @@ func apply_ragdoll_impulse(hit_node: Node, hit_position: Vector3, impulse: Vecto
 					target_bone = bone
 	
 	if target_bone:
-		# If DEAD, distribute impulse to ALL bones to prevent the "Stretching" artifact
+		# If DEAD, use VELOCITY INJECTION to prevent the "Stretching" artifact
 		if current_state == State.DEAD:
-			print("Applying DEATH impulse. Base: 0.1, Snap: 0.5. Target: ", target_bone.bone_name)
-			# Apply a minimal 'Base Velocity' to EVERY bone in the character
+			var base_vel = impulse * 0.2
+			print("Injecting DEATH Velocity. Base: ", base_vel, " Target: ", target_bone.bone_name)
+			
+			# Inject matching velocity into EVERY bone simultaneously
+			# This makes the body move as a rigid unit in frame 1, preventing stretch
 			for child in physical_bone_simulator.get_children():
 				if child is PhysicalBone3D:
-					child.apply_central_impulse(impulse * 0.1)
+					if not is_finger(child.bone_name):
+						child.linear_velocity = base_vel
+						# Add tiny random rotation so it doesn't fall like a statue
+						child.angular_velocity = Vector3(randf()-0.5, randf()-0.5, randf()-0.5) * 0.5
 			
-			# Apply a much stronger 'Impact Snap' to the actual hit bone
-			target_bone.apply_impulse(impulse * 0.5, hit_position - target_bone.global_position)
+			# Give the hit bone a localized 'kick' in velocity to favor the impact point
+			if not is_finger(target_bone.bone_name):
+				target_bone.linear_velocity += impulse * 0.2
 		else:
 			# Normal hit - apply full force to target bone
-			target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
+			if not is_finger(target_bone.bone_name):
+				target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
 
 
 func is_finger(bone_name: String) -> bool:
