@@ -56,8 +56,8 @@ func _ready() -> void:
 				# Finger/Small Bone Stabilization Injection
 				if is_finger(child.bone_name):
 					# Higher damping prevent 'jitter' and 'spaghetti' artifacts in small bones
-					child.linear_damp = 15.0
-					child.angular_damp = 15.0
+					child.linear_damp = 5.0
+					child.angular_damp = 5.0
 	
 	start_animation()
 
@@ -445,6 +445,9 @@ func start_full_ragdoll() -> void:
 	clear_snapshot_overrides()
 	physical_bone_simulator.physical_bones_stop_simulation()
 	
+	# Disable the character's movement colliders so the ragdoll can fall freely
+	disable_character_colliders()
+	
 	# Start full simulation (empty array = all bones)
 	physical_bone_simulator.physical_bones_start_simulation([])
 
@@ -485,6 +488,22 @@ func is_finger(bone_name: String) -> bool:
 	# Keywords found in Rig: index, middle, little, ring, thumb, proximal, intermediate, distal, metacarpal
 	return "finger" in n or "thumb" in n or "index" in n or "middle" in n or "ring" in n or "pinky" in n or \
 		   "little" in n or "proximal" in n or "intermediate" in n or "distal" in n or "metacarpal" in n
+
+
+func disable_character_colliders() -> void:
+	# Search for any CollisionObject3D in the character hierarchy that isn't a PhysicalBone
+	# Disabling these ensures the ragdoll doesn't 'sit' on its own movement capsule.
+	_disable_colliders_recursive(self)
+
+
+func _disable_colliders_recursive(node: Node) -> void:
+	if node is CollisionObject3D and not node is PhysicalBone3D:
+		node.collision_layer = 0
+		node.collision_mask = 0
+		print("Disabled character collider: ", node.name)
+	
+	for child in node.get_children():
+		_disable_colliders_recursive(child)
 
 
 func reset_ragdoll() -> void:
