@@ -52,6 +52,12 @@ func _ready() -> void:
 		for child in physical_bone_simulator.get_children():
 			if child is PhysicalBone3D and child.bone_name:
 				bones_dict[child.bone_name] = child
+				
+				# Finger/Small Bone Stabilization Injection
+				if is_finger(child.bone_name):
+					# Higher damping prevent 'jitter' and 'spaghetti' artifacts in small bones
+					child.linear_damp = 15.0
+					child.angular_damp = 15.0
 	
 	start_animation()
 
@@ -472,6 +478,13 @@ func apply_ragdoll_impulse(hit_node: Node, hit_position: Vector3, impulse: Vecto
 		else:
 			# Normal hit - apply full force to target bone
 			target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
+
+
+func is_finger(bone_name: String) -> bool:
+	var n = bone_name.to_lower()
+	# Keywords found in Rig: index, middle, little, ring, thumb, proximal, intermediate, distal, metacarpal
+	return "finger" in n or "thumb" in n or "index" in n or "middle" in n or "ring" in n or "pinky" in n or \
+		   "little" in n or "proximal" in n or "intermediate" in n or "distal" in n or "metacarpal" in n
 
 
 func reset_ragdoll() -> void:
