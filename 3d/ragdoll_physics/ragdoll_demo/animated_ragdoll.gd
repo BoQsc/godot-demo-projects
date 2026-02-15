@@ -357,7 +357,7 @@ func activate_ragdoll(hit_node: Node, hit_position: Vector3, impulse: Vector3) -
 		print("Character DIED. Starting full ragdoll.")
 		start_full_ragdoll()
 		# Defer impulse to next frame. Applying to ALL bones should prevent stretching.
-		call_deferred("apply_ragdoll_impulse", hit_node, hit_position, impulse * 1.0)
+		call_deferred("apply_ragdoll_impulse", hit_node, hit_position, impulse * 0.5)
 	else:
 		start_reflex_reaction(hit_node, hit_position, impulse)
 

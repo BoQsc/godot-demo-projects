@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bvon5jo2uckc3"]
 
-[ext_resource type="Script" path="res://ragdoll_demo/ragdoll_shooting_demo.gd" id="1_shooting"]
+[ext_resource type="Script" uid="uid://cdob5k66lckg0" path="res://ragdoll_demo/ragdoll_shooting_demo.gd" id="1_shooting"]
 [ext_resource type="PackedScene" uid="uid://ic06fbpe1tjk" path="res://characters_quaternius/quaternius_ragdoll.tscn" id="2_ragdoll"]
-[ext_resource type="Script" path="res://ragdoll_demo/animated_ragdoll.gd" id="3_animated"]
+[ext_resource type="Script" uid="uid://oo4y0h0vggie" path="res://ragdoll_demo/animated_ragdoll.gd" id="3_animated"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -18,6 +18,9 @@ ambient_light_source = 3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxMesh" id="BoxMesh_t5vgj"]
+size = Vector3(100, 1, 100)
 
 [node name="RagdollShootingDemo" type="Node3D" unique_id=274561810]
 script = ExtResource("1_shooting")
@@ -37,6 +40,7 @@ shape = SubResource("BoxShape3D_ground")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1874439766]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_t5vgj")
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=1653187199]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
