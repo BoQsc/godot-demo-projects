@@ -431,6 +431,13 @@ func start_full_ragdoll() -> void:
 	current_state = State.DEAD
 	if animation_player:
 		animation_player.stop()
+		
+	# Clear any existing partial simulation / recovery state
+	active_bones_mask.clear()
+	clear_snapshot_overrides()
+	physical_bone_simulator.physical_bones_stop_simulation()
+	
+	# Start full simulation (empty array = all bones)
 	physical_bone_simulator.physical_bones_start_simulation([])
 
 
