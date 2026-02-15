@@ -348,8 +348,10 @@ func activate_ragdoll(hit_node: Node, hit_position: Vector3, impulse: Vector3) -
 	print("Hit! Health remaining: ", current_health)
 	
 	if current_health <= 0:
+		print("Character DIED. Starting full ragdoll.")
 		start_full_ragdoll()
-		apply_ragdoll_impulse(hit_node, hit_position, impulse * 2.0)
+		# Defer impulse to next frame. Applying to ALL bones should prevent stretching.
+		call_deferred("apply_ragdoll_impulse", hit_node, hit_position, impulse * 1.0)
 	else:
 		start_reflex_reaction(hit_node, hit_position, impulse)
 
@@ -457,7 +459,19 @@ func apply_ragdoll_impulse(hit_node: Node, hit_position: Vector3, impulse: Vecto
 					target_bone = bone
 	
 	if target_bone:
-		target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
+		# If DEAD, distribute impulse to ALL bones to prevent the "Stretching" artifact
+		if current_state == State.DEAD:
+			print("Applying DEATH impulse to ALL bones. Target: ", target_bone.bone_name)
+			# Apply a uniform velocity boost to EVERY bone in the character
+			for child in physical_bone_simulator.get_children():
+				if child is PhysicalBone3D:
+					child.apply_central_impulse(impulse * 0.3)
+			
+			# Apply "Impact Snap" to the actual hit bone (Head, etc.)
+			target_bone.apply_impulse(impulse * 0.1, hit_position - target_bone.global_position)
+		else:
+			# Normal hit - apply full force to target bone
+			target_bone.apply_impulse(impulse, hit_position - target_bone.global_position)
 
 
 func reset_ragdoll() -> void:
