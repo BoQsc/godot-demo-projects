@@ -1,0 +1,109 @@
+[gd_scene format=3 uid="uid://cjx4k7bvwm8ba"]
+
+[ext_resource type="Script" uid="uid://d0vyrt26mcvdu" path="res://ragdoll_shooting_demo.gd" id="1_shooting"]
+[ext_resource type="PackedScene" uid="uid://ic06fbpe1tjk" path="res://characters_quaternius/quaternius_ragdoll.tscn" id="2_ragdoll"]
+[ext_resource type="Script" uid="uid://b2yoxgmcd80g2" path="res://animated_ragdoll.gd" id="3_animated"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
+ground_horizon_color = Color(0.646, 0.656, 0.67, 1)
+
+[sub_resource type="Sky" id="Sky_env"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_env"]
+background_mode = 2
+sky = SubResource("Sky_env")
+ambient_light_source = 3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(50, 1, 50)
+
+[node name="RagdollShootingDemo" type="Node3D" unique_id=274561810]
+script = ExtResource("1_shooting")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=136083744]
+environment = SubResource("Environment_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=631549021]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 10, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1481159175]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=1895247189]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ground")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1874439766]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1653187199]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=122764749]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.6685305)
+
+[node name="AnimatedRagdoll" type="Node3D" parent="." unique_id=789129738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+script = ExtResource("3_animated")
+animation_player_path = NodePath("QunaterniusRagdoll/Superhero_Male_FullBody/AnimationPlayer")
+physical_bone_simulator_path = NodePath("QunaterniusRagdoll/Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D")
+
+[node name="QunaterniusRagdoll" parent="AnimatedRagdoll" unique_id=1193036159 instance=ExtResource("2_ragdoll")]
+start_active = false
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1864312437]
+
+[node name="Crosshair" type="CenterContainer" parent="UI" unique_id=2072401200]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CrosshairLines" type="Control" parent="UI/Crosshair" unique_id=1162505696]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Vertical" type="ColorRect" parent="UI/Crosshair/CrosshairLines" unique_id=726360347]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_top = -10.0
+offset_right = 1.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Horizontal" type="ColorRect" parent="UI/Crosshair/CrosshairLines" unique_id=1334306622]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -1.0
+offset_right = 10.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Instructions" type="Label" parent="UI" unique_id=807140237]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 400.0
+offset_bottom = 100.0
+text = "MOUSE - Look around
+LEFT CLICK - Shoot
+ESC - Toggle mouse capture
+Click on the ragdoll to shoot it!"

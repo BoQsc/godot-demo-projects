@@ -3,7 +3,8 @@ extends Node3D
 const IMPACT_SOUND_SPEED_SMALL = 0.3
 const IMPACT_SOUND_SPEED_BIG = 1.0
 
-## The velocity to apply on the first physics frame.
+## If true, the ragdoll physics will start immediately on spawn.
+@export var start_active: bool = true
 @export var initial_velocity: Vector3
 
 var has_applied_initial_velocity: bool = false
@@ -17,11 +18,12 @@ var previous_pelvis_speed: float = 0.0
 
 
 func _ready() -> void:
-	$Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.physical_bones_start_simulation()
-	if not initial_velocity.is_zero_approx():
-		for physical_bone in $Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.get_children():
-			# Give the ragdoll an initial motion by applying velocity on all its bones upon being spawned.
-			physical_bone.apply_central_impulse(initial_velocity)
+	if start_active:
+		$Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.physical_bones_start_simulation()
+		if not initial_velocity.is_zero_approx():
+			for physical_bone in $Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D.get_children():
+				# Give the ragdoll an initial motion by applying velocity on all its bones upon being spawned.
+				physical_bone.apply_central_impulse(initial_velocity)
 
 
 func _physics_process(_delta: float) -> void:
