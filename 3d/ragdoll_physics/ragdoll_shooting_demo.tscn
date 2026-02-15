@@ -53,6 +53,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
 script = ExtResource("3_animated")
 animation_player_path = NodePath("QunaterniusRagdoll/Superhero_Male_FullBody/AnimationPlayer")
 physical_bone_simulator_path = NodePath("QunaterniusRagdoll/Superhero_Male_FullBody/Armature/GeneralSkeleton/PhysicalBoneSimulator3D")
+max_health = 10
 
 [node name="QunaterniusRagdoll" parent="AnimatedRagdoll" unique_id=1193036159 instance=ExtResource("2_ragdoll")]
 start_active = false

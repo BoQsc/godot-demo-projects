@@ -5,7 +5,9 @@ extends Node3D
 @export var shoot_force := 50.0
 
 @onready var camera: Camera3D = $CameraPivot/Camera3D
+@onready var camera_pivot: Node3D = $CameraPivot
 @onready var instructions: Label = $UI/Instructions
+@onready var character: Node3D = $AnimatedRagdoll
 
 
 func _ready() -> void:
@@ -15,7 +17,13 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	pass
+	if character:
+		# Keep pivot at character's floor position but at head height
+		var target_pos = character.global_position
+		target_pos.y += 1.8 # Eye level height
+		
+		# Smoothly follow instead of hard snap if desired, but for aiming hard snap is better
+		camera_pivot.global_position = target_pos
 
 
 func _unhandled_input(event: InputEvent) -> void:

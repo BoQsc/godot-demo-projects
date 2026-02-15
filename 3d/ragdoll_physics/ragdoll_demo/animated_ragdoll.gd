@@ -19,6 +19,13 @@ extends Node3D
 @export var recovery_stiffness: float = 20.0 # Torque strength to return to pose
 @export var recovery_damping: float = 1.0 # Damping to prevent oscillation
 
+@export_group("Wander Settings")
+@export var wander_enabled: bool = true
+@export var walk_speed: float = 1.5
+@export var wander_radius: float = 5.0
+@export var walk_animation: String = "AnimationLibrary_Godot_Standard/Walk"
+@export var idle_animation: String = "AnimationLibrary_Godot_Standard/Idle"
+
 enum State { IDLE, REFLEX, RECOVERY, BLENDING, DEAD }
 var current_state: State = State.IDLE
 var current_health: int
@@ -40,9 +47,15 @@ var sorted_bone_indices: Array[int] = []
 # Active Recovery State
 var target_physical_local_transforms: Dictionary = {} # bone_idx -> Transform3D (Local to Parent PhysicalBone)
 
+# Wander State
+var wander_target: Vector3
+var is_walking: bool = false
+var wander_wait_timer: float = 0.0
+
 
 func _ready() -> void:
 	current_health = max_health
+	wander_target = global_position
 	
 	if physical_bone_simulator:
 		skeleton = physical_bone_simulator.get_parent() as Skeleton3D
@@ -85,11 +98,16 @@ func _physics_process(delta: float) -> void:
 				clear_snapshot_overrides()
 			else:
 				apply_snapshot_overrides(blend_amount)
+		
+		State.IDLE:
+			if wander_enabled:
+				process_wander(delta)
 
 
 func enter_recovery_state() -> void:
 	current_state = State.RECOVERY
 	state_timer = recovery_duration
+	is_walking = false # Reset movement on recovery
 
 
 func apply_active_recovery_torque(delta: float) -> void:
@@ -344,6 +362,42 @@ func start_animation() -> void:
 				animation_player.play(anims[0])
 
 
+func process_wander(delta: float) -> void:
+	if wander_wait_timer > 0:
+		wander_wait_timer -= delta
+		if is_walking:
+			is_walking = false
+			animation_player.play(idle_animation, 0.3)
+		return
+
+	var dist = global_position.distance_to(wander_target)
+	
+	if dist < 0.5:
+		# Reached target
+		wander_wait_timer = randf_range(2.0, 5.0)
+		pick_new_wander_target()
+	else:
+		# Move towards target
+		is_walking = true
+		if animation_player.current_animation != walk_animation:
+			animation_player.play(walk_animation, 0.3)
+		
+		# Rotate towards target
+		var dir = (wander_target - global_position).normalized()
+		var target_quat = Quaternion(Basis.looking_at(dir))
+		global_transform.basis = Basis(global_transform.basis.get_rotation_quaternion().slerp(target_quat, 5.0 * delta))
+		
+		# Move
+		global_position += dir * walk_speed * delta
+
+
+func pick_new_wander_target() -> void:
+	var random_dir = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
+	wander_target = global_position + random_dir * wander_radius
+	# Basic ground check (stay near 0 height)
+	wander_target.y = 0.0
+
+
 func activate_ragdoll(hit_node: Node, hit_position: Vector3, impulse: Vector3) -> void:
 	if current_state == State.DEAD:
 		apply_ragdoll_impulse(hit_node, hit_position, impulse)
@@ -437,6 +491,7 @@ func add_bone_subtree(bone_name: String) -> void:
 
 func start_full_ragdoll() -> void:
 	current_state = State.DEAD
+	is_walking = false
 	if animation_player:
 		animation_player.stop()
 		
