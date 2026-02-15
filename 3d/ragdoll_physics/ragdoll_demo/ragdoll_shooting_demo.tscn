@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cjx4k7bvwm8ba"]
 
-[ext_resource type="Script" uid="uid://d0vyrt26mcvdu" path="res://ragdoll_shooting_demo.gd" id="1_shooting"]
+[ext_resource type="Script" uid="uid://d0vyrt26mcvdu" path="res://ragdoll_demo/ragdoll_shooting_demo.gd" id="1_shooting"]
 [ext_resource type="PackedScene" uid="uid://ic06fbpe1tjk" path="res://characters_quaternius/quaternius_ragdoll.tscn" id="2_ragdoll"]
-[ext_resource type="Script" uid="uid://b2yoxgmcd80g2" path="res://animated_ragdoll.gd" id="3_animated"]
+[ext_resource type="Script" uid="uid://b2yoxgmcd80g2" path="res://ragdoll_demo/animated_ragdoll.gd" id="3_animated"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
